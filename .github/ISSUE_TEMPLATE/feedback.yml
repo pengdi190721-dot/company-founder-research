@@ -1,0 +1,29 @@
+name: 技能问题或改进
+description: 根据实际使用提出修改需求
+title: "[改进] "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: 使用版本
+      placeholder: 例如 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 实际遇到什么问题
+      description: 说明输入、所用公开渠道和实际结果。
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 希望改成什么行为
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 复现材料
+      description: 可填写虚构输入或公开页面链接。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "老板与企业资料建档"
+  short_description: "根据公司名称、地址和老板姓名，收集六类公开资料并核对来源与身份"
+  default_prompt: "请用 $company-founder-research，根据我提供的公司名称、地址和老板姓名，收集六类公开资料并标注来源、核实状态和待补事项。"
