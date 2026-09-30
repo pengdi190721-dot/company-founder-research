@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""校验并构建仅包含通用技能文件的可安装版本包。"""
+"""校验并构建明确文件清单中的插件包和单独技能包。"""
 import argparse
 import hashlib
+import json
 from pathlib import Path
 import re
 import sys
@@ -15,6 +16,11 @@ EXPECTED = {
     "agents/openai.yaml",
     "references/collection.md",
     "references/report-template.md",
+}
+PLUGIN_FILES = {
+    "plugin.json", ".codex-plugin/plugin.json", "README.md", "CHANGELOG.md",
+    "CONTRIBUTING.md", "examples/使用示例.md",
+    *{f"skills/{NAME}/{p}" for p in EXPECTED},
 }
 
 
@@ -35,6 +41,31 @@ def check(tag=None):
     if not version_match:
         raise ValueError("技能版本缺失或格式不正确")
     version = version_match.group(1)
+    portable = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
+    compat = json.loads((ROOT / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
+    for manifest in (portable, compat):
+        if manifest.get("name") != NAME or manifest.get("version") != version:
+            raise ValueError("插件标识或版本与技能不一致")
+        if not manifest.get("description") or not manifest.get("author", {}).get("name"):
+            raise ValueError("插件描述或作者缺失")
+    presentation = portable.get("extensions", {}).get("com.openai", {}).get("interface")
+    if presentation != compat.get("interface") or compat.get("skills") != "./skills/":
+        raise ValueError("两种插件展示信息不一致或技能入口错误")
+    if not isinstance(presentation, dict) or presentation.get("displayName") != "老板与企业资料建档":
+        raise ValueError("插件显示名称错误")
+    if not presentation.get("shortDescription") or not presentation.get("defaultPrompt"):
+        raise ValueError("插件展示简介或调用提示缺失")
+    market = json.loads((ROOT / ".agents/plugins/marketplace.json").read_text(encoding="utf-8"))
+    expected_entry = {
+        "name": NAME, "source": {"source": "local", "path": "./"},
+        "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+        "category": "Productivity",
+    }
+    if market.get("name") != NAME or market.get("plugins") != [expected_entry]:
+        raise ValueError("插件市场入口与仓库结构不一致")
+    for relative in PLUGIN_FILES:
+        if not (ROOT / relative).is_file():
+            raise ValueError(f"插件文件缺失：{relative}")
     if tag is not None and tag != f"v{version}":
         raise ValueError(f"标签{tag}与技能版本{version}不一致")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -57,7 +88,7 @@ def check(tag=None):
     interface = (SKILL / "agents/openai.yaml").read_text(encoding="utf-8")
     if f"${NAME}" not in interface:
         raise ValueError("默认调用未指向本技能")
-    print(f"校验通过：{NAME}，版本{version}，技能文件{len(files)}个")
+    print(f"校验通过：{NAME}，版本{version}，技能文件{len(files)}个，插件文件{len(PLUGIN_FILES)}个")
     return version, section.group(1).strip()
 
 
@@ -65,29 +96,41 @@ def build(tag=None):
     version, notes = check(tag)
     dist = ROOT / "dist"
     dist.mkdir(exist_ok=True)
-    output = dist / f"{NAME}-v{version}.zip"
-    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for relative in sorted(EXPECTED):
-            info = zipfile.ZipInfo(f"{NAME}/{relative}", date_time=(2026, 1, 1, 0, 0, 0))
-            info.compress_type = zipfile.ZIP_DEFLATED
-            info.external_attr = 0o100644 << 16
-            archive.writestr(info, (SKILL / relative).read_bytes())
-    with zipfile.ZipFile(output) as archive:
-        expected_names = {f"{NAME}/{p}" for p in EXPECTED}
-        if set(archive.namelist()) != expected_names or archive.testzip():
-            raise ValueError("压缩包结构或完整性异常")
-        for relative in EXPECTED:
-            if archive.read(f"{NAME}/{relative}") != (SKILL / relative).read_bytes():
-                raise ValueError(f"发布包与源码不一致：{relative}")
-    digest = hashlib.sha256(output.read_bytes()).hexdigest()
-    (dist / "SHA256SUMS.txt").write_text(f"{digest}  {output.name}\n", encoding="utf-8")
+    sums = []
+    packages = [
+        (dist / f"{NAME}-v{version}.zip", {f"{NAME}/{p}": SKILL / p for p in EXPECTED}),
+        (dist / f"{NAME}-plugin-v{version}.zip", {p: ROOT / p for p in PLUGIN_FILES}),
+    ]
+    for output, entries in packages:
+        with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, source in sorted(entries.items()):
+                info = zipfile.ZipInfo(name, date_time=(2026, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                info.external_attr = 0o100644 << 16
+                archive.writestr(info, source.read_bytes())
+        with zipfile.ZipFile(output) as archive:
+            if set(archive.namelist()) != set(entries) or archive.testzip():
+                raise ValueError("压缩包结构或完整性异常")
+            for name, source in entries.items():
+                if archive.read(name) != source.read_bytes():
+                    raise ValueError(f"发布包与源码不一致：{name}")
+        digest = hashlib.sha256(output.read_bytes()).hexdigest()
+        sums.append(f"{digest}  {output.name}\n")
+        print(f"安装包已生成并回读核对：{output.name}")
+    # 清理旧版本产物，避免标签发布流程误传旧包。
+    current = {output for output, _ in packages}
+    for old in dist.glob(f"{NAME}*.zip"):
+        if old not in current:
+            old.unlink()
+    (dist / "SHA256SUMS.txt").write_text("".join(sums), encoding="utf-8")
     (dist / "发布说明.md").write_text(
         f"# 老板与企业资料建档 {version}\n\n{notes}\n\n"
-        "请下载下方技能压缩包用于安装。安装后重启 Codex。\n"
+        "希望在「添加 → 插件」列表看到入口，请按仓库首页安装插件版。\n"
+        "带 -plugin- 的压缩包是完整插件包，另一份保留单独技能安装方式。\n"
+        "安装后重新打开插件列表；必要时重启 Codex，并在新对话使用。\n"
         "压缩包已逐文件核对；具体渠道能否访问取决于实际运行环境。\n",
         encoding="utf-8",
     )
-    print(f"安装包已生成并回读核对：{output.name}")
 
 
 def main():

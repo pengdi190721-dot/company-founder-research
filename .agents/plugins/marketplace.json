@@ -1,0 +1,20 @@
+{
+  "name": "company-founder-research",
+  "interface": {
+    "displayName": "老板与企业资料建档"
+  },
+  "plugins": [
+    {
+      "name": "company-founder-research",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

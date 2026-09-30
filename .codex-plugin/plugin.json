@@ -1,0 +1,36 @@
+{
+  "name": "company-founder-research",
+  "version": "0.2.0",
+  "description": "根据公司名称、地址和老板姓名，收集并核对六类公开资料，生成带来源的企业与老板档案。",
+  "author": {
+    "name": "彭迪",
+    "url": "https://github.com/pengdi190721-dot"
+  },
+  "homepage": "https://github.com/pengdi190721-dot/company-founder-research",
+  "repository": "https://github.com/pengdi190721-dot/company-founder-research",
+  "keywords": [
+    "老板与企业资料建档",
+    "企业背调",
+    "创始人调研",
+    "抖音",
+    "视频号"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "老板与企业资料建档",
+    "shortDescription": "输入公司、地址和老板姓名，核对六类公开资料并整理成档案",
+    "longDescription": "收集企业身份、老板身份、产品业务、创业沿革、官网与视频号／抖音、公司介绍与历史采访。区分同名企业、人物职务与三种年份，每项资料保留来源、核实状态及具体缺口。适合客户拜访和老板访谈前准备。",
+    "developerName": "彭迪",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/pengdi190721-dot/company-founder-research",
+    "defaultPrompt": [
+      "请用「老板与企业资料建档」收集公开资料。公司名称：；公司地址：；老板姓名：。",
+      "请核对这家企业和老板的官网、抖音、视频号，并记录账号归属依据。"
+    ],
+    "brandColor": "#246854"
+  }
+}

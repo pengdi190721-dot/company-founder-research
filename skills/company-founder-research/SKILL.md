@@ -2,7 +2,7 @@
 name: company-founder-research
 description: "根据公司名称、公司地址和老板姓名收集并核对企业身份、老板身份、产品业务、创业沿革、官网与视频号/抖音、公司介绍与历史采访六类公开资料，生成带来源、日期、核实状态和资料缺口的档案。适用于企业资料建档、老板访谈前准备、客户拜访前了解企业；不负责人物心理诊断、营销文案或投资判断。"
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   repository: "https://github.com/pengdi190721-dot/company-founder-research"
 ---
 

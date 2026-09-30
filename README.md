@@ -2,7 +2,7 @@
 
 给出公司名称、公司地址和老板姓名，收集六类公开资料，逐项保留来源、日期、核实状态与资料缺口。适合客户拜访准备、企业资料整理和老板访谈前调研。
 
-技能标识：`company-founder-research`。当前版本：`0.1.0`。
+技能标识：`company-founder-research`。当前版本：`0.2.0`。
 
 | 模块 | 收集内容 |
 |---|---|
@@ -14,6 +14,39 @@
 | 介绍与采访 | 公司介绍原文入口、短摘录和摘要，历史采访、公开演讲、人物故事线索 |
 
 ## 安装与使用
+
+### 在 Codex 的「添加 → 插件」列表里使用
+
+这是一个包含技能的 Codex 插件，显示名称为「老板与企业资料建档」。单独安装技能不会自动出现在插件列表里；要看到插件入口，请安装插件版。
+
+在 Codex 对话中复制：
+
+```text
+请从下面的 GitHub 仓库安装「老板与企业资料建档」插件，
+添加它的插件市场来源并启用插件，检查安装版本和实际缓存文件。
+https://github.com/pengdi190721-dot/company-founder-research
+安装后请检查「添加 → 插件」列表中的显示名称。
+```
+
+支持插件管理的 Codex 命令行也可以执行：
+
+```bash
+codex plugin marketplace add pengdi190721-dot/company-founder-research
+codex plugin add company-founder-research@company-founder-research
+```
+
+安装后重新打开插件列表；若桌面端仍保留旧列表，重启 Codex，然后新建对话使用。这里的插件市场是本仓库提供的来源，不代表已经上架官方公共插件目录。
+
+更新已安装插件：
+
+```bash
+codex plugin marketplace upgrade company-founder-research
+codex plugin add company-founder-research@company-founder-research
+```
+
+[版本发布页](https://github.com/pengdi190721-dot/company-founder-research/releases/latest)同时提供两种包：带 `-plugin-` 的是完整插件包，未带该词的是单独技能包。完整插件包包含插件信息和技能；下载压缩包后仍需完成插件安装，不能仅把它放进技能目录。
+
+### 单独安装技能
 
 在支持技能安装的 Codex 对话中复制：
 
@@ -56,19 +89,19 @@ https://github.com/pengdi190721-dot/company-founder-research/tree/main/skills/co
 向维护这个仓库的 Codex 对话发送：
 
 ```text
-请更新「老板与企业资料建档」技能。
+请更新「老板与企业资料建档」插件及其技能。
 仓库：https://github.com/pengdi190721-dot/company-founder-research
 这次实际遇到的问题：
 希望改成的行为：
 可以复现问题的虚构输入或公开链接：
-请修改技能和相关参考文件，记录版本变化，完成校验后发布新版本，
-并更新我本机安装的技能。不要覆盖我人工补充的企业档案。
+请修改技能、插件信息和相关参考文件，同步版本变化，完成校验后发布新版本，
+并刷新插件市场、更新我本机安装的插件。不要覆盖我人工补充的企业档案。
 ```
 
 仅更新本机到已发布最新版时复制：
 
 ```text
-请从这个仓库的最新发布版本更新我本机的「老板与企业资料建档」，
+请从这个仓库的最新发布版本更新我本机的「老板与企业资料建档」插件，
 更新前核对现有版本，保留本地改动；有冲突先列出差异。
 https://github.com/pengdi190721-dot/company-founder-research
 ```
@@ -83,4 +116,4 @@ GitHub 可用仓库名 `company-founder-research`，或“老板与企业资料�
 
 这是指令型技能，不是独立爬虫或联网服务。需要支持技能的智能助手和至少一个可用的公开资料检索渠道。没有配置某个平台工具时，技能会使用其他已提供渠道，并报告实际覆盖范围。
 
-仓库自动检查技能元数据、参考文件链接、版本一致性和发布包结构；通过这些检查不代表所有平台都能搜索，也不代表每次都能找到指定账号。
+仓库自动检查技能元数据、插件和市场信息、参考文件链接、版本一致性和两种发布包结构；通过这些检查不代表所有平台都能搜索，也不代表每次都能找到指定账号。
